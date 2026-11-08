@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Виолетта, тебе письмо 💌</title>
+<meta property="og:title" content="Виолетта, тебе письмо 💌">
+<meta property="og:description" content="Открой, когда будешь одна 🤍">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Montserrat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#fff6f4; --bg2:#fde4e8; --rose:#e88fa3; --rose-d:#c9607a;
+  --ink:#5b3a45; --paper:#fffdf8; --env:#fbe9e4; --env-d:#f3d3cc;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:radial-gradient(120% 80% at 50% 0%,#fff 0%,var(--bg1) 40%,var(--bg2) 100%) fixed;
+  color:var(--ink);font-family:'Cormorant Garamond',serif;overflow:hidden;
+}
+#petals{position:fixed;inset:0;pointer-events:none;z-index:0}
+.scene{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;z-index:1;opacity:0;pointer-events:none;transition:opacity .9s ease}
+.scene.on{opacity:1;pointer-events:auto}
+.btn{font-family:'Montserrat',sans-serif;font-size:15px;color:#fff;border:0;border-radius:999px;
+  padding:14px 30px;background:linear-gradient(180deg,#f2a5b6,var(--rose-d));
+  box-shadow:0 8px 24px rgba(201,96,122,.35);cursor:pointer;transition:transform .2s}
+.btn:active{transform:scale(.96)}
+.hint{font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:.08em;color:#b98a96;margin-top:18px;
+  animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+
+/* 1. конверт */
+.title{text-align:center;margin-bottom:34px}
+.title small{display:block;font-style:italic;font-size:22px;color:#b98a96}
+.title h1{font-weight:500;font-size:34px;letter-spacing:.01em}
+.envelope{position:relative;width:min(300px,82vw);aspect-ratio:3/2;cursor:pointer;
+  animation:float 3.5s ease-in-out infinite;filter:drop-shadow(0 18px 30px rgba(201,96,122,.25))}
+@keyframes float{50%{transform:translateY(-8px)}}
+.env-back{position:absolute;inset:0;background:var(--env-d);border-radius:8px}
+.env-letter{position:absolute;left:7%;right:7%;top:8%;bottom:8%;background:var(--paper);border-radius:4px;
+  transition:transform 1s cubic-bezier(.3,.7,.3,1) .5s}
+.env-front{position:absolute;inset:0;border-radius:8px;background:linear-gradient(160deg,#fdf0ec,var(--env));
+  clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);z-index:2}
+.env-flap{position:absolute;left:0;right:0;top:0;height:62%;transform-origin:top;
+  clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(#f8ddd6,#f1cfc7);
+  transition:transform .7s ease;z-index:3;border-radius:8px 8px 0 0}
+.seal{position:absolute;left:50%;top:62%;width:54px;height:54px;transform:translate(-50%,-50%);z-index:4;
+  border-radius:50%;background:radial-gradient(circle at 35% 30%,#e47d96,#b84463 70%);
+  box-shadow:0 3px 8px rgba(120,30,60,.35),inset 0 0 0 4px rgba(255,255,255,.12);
+  display:grid;place-items:center;transition:opacity .4s,transform .4s}
+.seal svg{width:24px;fill:#ffd9e2;opacity:.9}
+.env-name{position:absolute;bottom:5%;left:0;right:0;text-align:center;font-family:'Caveat',cursive;
+  font-size:26px;color:var(--rose-d);z-index:2}
+.envelope.open{animation:none}
+.envelope.open .seal{opacity:0;transform:translate(-50%,-50%) scale(1.4)}
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:0}
+.envelope.open .env-letter{transform:translateY(-55%)}
+
+/* 2. письмо */
+#s2{justify-content:flex-start;overflow-y:auto;padding-top:32px;padding-bottom:40px}
+.paper{width:min(440px,100%);background:var(--paper);border-radius:6px;padding:30px 26px 26px;
+  box-shadow:0 20px 50px rgba(150,70,90,.18);position:relative;
+  transform:translateY(30px);transition:transform 1s ease}
+.scene.on .paper{transform:none}
+.paper .to{font-family:'Caveat',cursive;font-size:20px;color:var(--rose)}
+.paper h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:28px;margin:2px 0 14px}
+.paper p{font-family:'Caveat',cursive;font-size:23px;line-height:34px;margin-bottom:12px;
+  opacity:0;transform:translateY(8px);transition:opacity .9s ease,transform .9s ease}
+.paper p.show{opacity:1;transform:none}
+.paper .sign{text-align:right;color:var(--rose-d);font-weight:700}
+#next{margin-top:26px;opacity:0;transition:opacity .8s}
+#next.show{opacity:1}
+
+/* 3. фото */
+.polaroid{background:#fff;padding:12px 12px 0;width:min(290px,76vw);box-shadow:0 22px 50px rgba(150,70,90,.25);
+  transform:rotate(-4deg) scale(.9);transition:transform 1.2s cubic-bezier(.3,.8,.3,1)}
+.scene.on .polaroid{transform:rotate(-3deg) scale(1)}
+.polaroid img{display:block;width:100%;aspect-ratio:4/4.3;object-fit:cover;object-position:50% 30%;
+  filter:brightness(1.12) saturate(1.05) contrast(.97)}
+.polaroid figcaption{font-family:'Caveat',cursive;font-size:26px;text-align:center;padding:10px 0 14px;color:var(--ink)}
+.tape{position:absolute;width:90px;height:26px;background:rgba(255,220,228,.75);left:50%;top:-12px;
+  transform:translateX(-50%) rotate(3deg)}
+.pwrap{position:relative}
+.love{font-size:30px;text-align:center;margin:30px 0 22px;font-weight:500;line-height:1.2}
+.love i{color:var(--rose-d)}
+#miss-msg{font-family:'Caveat',cursive;font-size:26px;color:var(--rose-d);height:34px;margin-top:16px;
+  opacity:0;transition:opacity .6s}
+#miss-msg.show{opacity:1}
+.heart-pop{position:fixed;pointer-events:none;z-index:5;font-size:22px;will-change:transform,opacity}
+</style>
+</head>
+<body>
+<canvas id="petals"></canvas>
+
+<!-- 1 -->
+<section class="scene on" id="s1">
+  <div class="title"><small>Виолетта,</small><h1>тебе письмо</h1></div>
+  <div class="envelope" id="env">
+    <div class="env-back"></div>
+    <div class="env-letter"></div>
+    <div class="env-front"></div>
+    <div class="env-flap"></div>
+    <div class="seal"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3.1 1.7-1.9 3.2-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg></div>
+    <div class="env-name">Виолетте</div>
+  </div>
+  <div class="hint" id="hint">нажми на конверт</div>
+</section>
+
+<!-- 2 -->
+<section class="scene" id="s2">
+  <article class="paper">
+    <div class="to">это тебе, Виолетта</div>
+    <h2>Чтобы ты знала</h2>
+    <p>Почти два месяца назад ты первая сказала, что любишь меня. Смелая моя. С того дня я каждое утро просыпаюсь с мыслью, как же мне с тобой повезло.</p>
+    <p>Я люблю в тебе всё, но особенно твою доброту: рядом с тобой даже самый хмурый день становится тёплым. Люблю, что с тобой можно говорить обо всём, ничего не боясь и не притворяясь. И что мы понимаем друг друга с полуслова, а иногда и вовсе без слов.</p>
+    <p>А ещё я постоянно вспоминаю наши поцелуи. Это было прекрасно. И, честно, нечестно вспоминать их, когда ты так далеко 🙂</p>
+    <p>Но расстояние это просто километры. Они ничего не меняют в том, что я чувствую. Я считаю дни до того, как снова тебя обниму, а пока пусть это письмо обнимет тебя за меня.</p>
+    <p class="sign">Твой любимый Серёжа</p>
+  </article>
+  <button class="btn" id="next">Дальше 🤍</button>
+</section>
+
+<!-- 3 -->
+<section class="scene" id="s3">
+  <div class="pwrap">
+    <div class="tape"></div>
+    <figure class="polaroid">
+      <img src="photo.jpg" alt="Виолетта">
+      <figcaption>самая красивая на свете</figcaption>
+    </figure>
+  </div>
+  <div class="love">Я люблю тебя, <i>Виолетта</i></div>
+  <button class="btn" id="miss">нажми, если скучаешь</button>
+  <div id="miss-msg">я тоже очень скучаю 🤍</div>
+</section>
+
+<script>
+// лепестки
+const cv=document.getElementById('petals'),cx=cv.getContext('2d');
+let W,H,dpr=Math.min(devicePixelRatio||1,2),petals=[];
+function rs(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(dpr,0,0,dpr,0,0)}
+rs();addEventListener('resize',rs);
+const cols=['#f7b6c4','#f4a3b5','#fbd0d8','#eea0b2','#ffe1e6'];
+function mk(y){return{x:Math.random()*W,y:y??-20,s:6+Math.random()*8,vy:.4+Math.random()*.7,vx:-.3+Math.random()*.6,
+  a:Math.random()*6.28,va:-.02+Math.random()*.04,w:Math.random()*6.28,c:cols[Math.random()*cols.length|0]}}
+for(let i=0;i<26;i++)petals.push(mk(Math.random()*H));
+(function loop(){cx.clearRect(0,0,W,H);
+  for(const p of petals){p.y+=p.vy;p.w+=.02;p.x+=p.vx+Math.sin(p.w)*.5;p.a+=p.va;
+    if(p.y>H+20)Object.assign(p,mk());
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.scale(1,.55+.45*Math.sin(p.w*2));
+    cx.fillStyle=p.c;cx.globalAlpha=.8;cx.beginPath();
+    cx.moveTo(0,-p.s);cx.bezierCurveTo(p.s*.9,-p.s*.6,p.s*.7,p.s*.6,0,p.s);cx.bezierCurveTo(-p.s*.7,p.s*.6,-p.s*.9,-p.s*.6,0,-p.s);
+    cx.fill();cx.restore()}
+  requestAnimationFrame(loop)})();
+
+function go(from,to){document.getElementById(from).classList.remove('on');document.getElementById(to).classList.add('on')}
+
+// сердечки
+function hearts(x,y,n){const e=['💗','💖','🤍','💕','🌸'];
+  for(let i=0;i<n;i++){const h=document.createElement('div');h.className='heart-pop';h.textContent=e[Math.random()*e.length|0];
+    h.style.left=x+'px';h.style.top=y+'px';h.style.fontSize=(16+Math.random()*20)+'px';document.body.appendChild(h);
+    const ang=Math.random()*Math.PI*2,d=80+Math.random()*180;
+    h.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},
+      {transform:`translate(calc(-50% + ${Math.cos(ang)*d}px),calc(-50% + ${Math.sin(ang)*d-60}px)) scale(1)`,opacity:0}],
+      {duration:1400+Math.random()*900,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>h.remove()}}
+
+// конверт
+const env=document.getElementById('env');let opened=false;
+env.addEventListener('click',e=>{if(opened)return;opened=true;env.classList.add('open');
+  document.getElementById('hint').textContent='открываю…';
+  const r=env.getBoundingClientRect();hearts(r.left+r.width/2,r.top+r.height*.6,14);
+  setTimeout(()=>{go('s1','s2');revealLetter()},1900)});
+
+function revealLetter(){const ps=document.querySelectorAll('.paper p');
+  ps.forEach((p,i)=>setTimeout(()=>p.classList.add('show'),700+i*1300));
+  setTimeout(()=>document.getElementById('next').classList.add('show'),700+ps.length*1300)}
+
+document.getElementById('next').addEventListener('click',()=>{go('s2','s3');
+  setTimeout(()=>hearts(innerWidth/2,innerHeight*.4,18),700)});
+
+let missCount=0;const msgs=['я тоже очень скучаю 🤍','ещё сильнее, чем ты думаешь','скоро обниму тебя крепко-крепко','люблю тебя 💗'];
+document.getElementById('miss').addEventListener('click',e=>{hearts(e.clientX,e.clientY,26);
+  const m=document.getElementById('miss-msg');m.classList.remove('show');
+  setTimeout(()=>{m.textContent=msgs[missCount++%msgs.length];m.classList.add('show')},150);
+  if(navigator.vibrate)navigator.vibrate(30)});
+</script>
+</body>
+</html>
