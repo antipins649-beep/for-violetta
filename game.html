@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Поймай мою любовь 💗</title>
+<meta property="og:title" content="Поймай мою любовь 💗">
+<meta property="og:description" content="Маленькая игра для Виолетты">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#e88fa3;--rose-d:#c9607a;--ink:#5b3a45;--paper:#fffdf8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:radial-gradient(120% 80% at 50% 0%,#fff 0%,#fff6f4 40%,#fde4e8 100%) fixed;color:var(--ink);
+  font-family:'Cormorant Garamond',serif;touch-action:none}
+canvas{position:fixed;inset:0;display:block}
+.hud{position:fixed;top:0;left:0;right:0;padding:calc(14px + env(safe-area-inset-top)) 16px 0;z-index:2;
+  pointer-events:none;opacity:0;transition:opacity .5s}
+.hud.on{opacity:1}
+.hud-row{display:flex;justify-content:space-between;align-items:baseline;font-family:'Montserrat',sans-serif;
+  font-size:13px;font-weight:600;color:var(--rose-d);margin-bottom:8px}
+.bar{height:12px;border-radius:99px;background:rgba(255,255,255,.75);box-shadow:inset 0 1px 3px rgba(150,70,90,.15);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#f6b8c6,var(--rose-d));
+  transition:width .35s cubic-bezier(.3,.8,.3,1)}
+.overlay{position:fixed;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;text-align:center;opacity:0;pointer-events:none;transition:opacity .7s}
+.overlay.on{opacity:1;pointer-events:auto}
+.overlay h1{font-weight:500;font-size:36px;line-height:1.1;margin-bottom:6px}
+.overlay h1 i{color:var(--rose-d)}
+.overlay .sub{font-family:'Caveat',cursive;font-size:24px;color:#b98a96;margin-bottom:26px}
+.rules{background:rgba(255,255,255,.7);border-radius:18px;padding:16px 20px;margin-bottom:28px;
+  font-family:'Montserrat',sans-serif;font-size:14px;line-height:1.9;text-align:left;box-shadow:0 10px 30px rgba(150,70,90,.1)}
+.btn{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:500;color:#fff;border:0;border-radius:999px;
+  padding:14px 34px;background:linear-gradient(180deg,#f2a5b6,var(--rose-d));
+  box-shadow:0 8px 24px rgba(201,96,122,.35);cursor:pointer;transition:transform .2s}
+.btn:active{transform:scale(.96)}
+.btn.ghost{text-decoration:none;background:none;color:var(--rose-d);box-shadow:none;margin-top:10px;font-size:14px}
+.avatar{width:92px;height:92px;border-radius:50%;background:url(photo.jpg) 50% 25%/cover;margin-bottom:18px;
+  border:4px solid #fff;box-shadow:0 0 0 3px var(--rose),0 12px 30px rgba(201,96,122,.3)}
+.card{background:var(--paper);border-radius:8px;padding:26px 24px 22px;width:min(400px,100%);margin-bottom:24px;
+  box-shadow:0 20px 50px rgba(150,70,90,.18);text-align:left;transform:translateY(20px);transition:transform 1s}
+.overlay.on .card{transform:none}
+.card h2{font-weight:500;font-size:28px;margin-bottom:10px}
+.card p{font-family:'Caveat',cursive;font-size:23px;line-height:1.4;margin-bottom:10px}
+.card .sign{text-align:right;color:var(--rose-d);font-weight:700}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="hud" id="hud">
+  <div class="hud-row"><span>любовь заряжается</span><span id="cnt">0 / 30</span></div>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<div class="overlay on" id="start">
+  <div class="avatar"></div>
+  <h1>Поймай мою <i>любовь</i></h1>
+  <div class="sub">маленькая игра для Виолетты</div>
+  <div class="rules">
+    💗 води пальцем и лови сердечки<br>
+    💖 золотое сердце даёт сразу +3<br>
+    ☁️ облака «км» это расстояние, уворачивайся!
+  </div>
+  <button class="btn" id="play">Играть</button>
+</div>
+
+<div class="overlay" id="end">
+  <div class="card">
+    <h2>Ты поймала всё 🤍</h2>
+    <p>Все мои сердечки теперь у тебя. Хотя честно, их у меня для тебя бесконечно много, так что эта игра никогда по-настоящему не закончится.</p>
+    <p>А километры, видишь, мы с тобой обходим легко. Скоро я поймаю тебя саму, в самые крепкие обнимашки.</p>
+    <p class="sign">Твой Серёжа</p>
+  </div>
+  <button class="btn" id="again">Сыграть ещё</button>
+  <a class="btn ghost" href="./">← вернуться к письму</a>
+</div>
+
+<script>
+const cv=document.getElementById('c'),g=cv.getContext('2d');
+let W,H,dpr=Math.min(devicePixelRatio||1,2);
+function rs(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';g.setTransform(dpr,0,0,dpr,0,0)}
+rs();addEventListener('resize',rs);
+
+const GOAL=30;
+const img=new Image();img.src='photo.jpg';
+const R=()=>Math.max(30,Math.min(W,H)*0.085); // радиус ловца
+let state='menu',score=0,items=[],fx=[],floats=[],t0=0,last=0,spawnT=0,shake=0;
+const P={x:0,tx:0,y:0,squish:0};
+
+const phrases=['+1 обнимашка','+1 поцелуй','моя!','люблю','ещё!','умница','скучаю','💋'];
+
+function reset(){score=0;items=[];fx=[];floats=[];P.x=P.tx=W/2;spawnT=0;t0=performance.now();updHud()}
+function updHud(){document.getElementById('cnt').textContent=Math.min(score,GOAL)+' / '+GOAL;
+  document.getElementById('fill').style.width=Math.min(100,score/GOAL*100)+'%'}
+
+function spawn(el){
+  const prog=score/GOAL, r=Math.random();
+  let type='heart';
+  if(r<0.07)type='gold';else if(r<0.07+0.16+prog*0.12)type='cloud';
+  const sz=type==='cloud'?44:type==='gold'?36:30+Math.random()*8;
+  items.push({type,x:24+Math.random()*(W-48),y:-40,sz,vy:(1.6+prog*1.6+Math.random()*1.1)*(H/750),
+    w:Math.random()*6.28,wa:0.6+Math.random()*1.2,rot:(Math.random()-.5)*.6})
+}
+
+// управление
+function setX(e){const p=e.touches?e.touches[0]:e;P.tx=Math.max(R(),Math.min(W-R(),p.clientX))}
+addEventListener('pointerdown',e=>{if(state==='play')setX(e)});
+addEventListener('pointermove',e=>{if(state==='play'&&(e.pointerType!=='mouse'||e.buttons||true))setX(e)});
+addEventListener('touchmove',e=>{if(state==='play'){setX(e);e.preventDefault()}},{passive:false});
+
+function burst(x,y,col,n){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=1.5+Math.random()*3.5;
+  fx.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,life:1,col,sz:3+Math.random()*4})}}
+function floatText(x,y,txt,col){floats.push({x,y,txt,col,life:1})}
+
+function heartPath(x,y,s){g.beginPath();g.moveTo(x,y+s*.3);
+  g.bezierCurveTo(x,y,x-s*.5,y-s*.1,x-s*.5,y+s*.25);g.bezierCurveTo(x-s*.5,y+s*.6,x,y+s*.75,x,y+s);
+  g.bezierCurveTo(x,y+s*.75,x+s*.5,y+s*.6,x+s*.5,y+s*.25);g.bezierCurveTo(x+s*.5,y-s*.1,x,y,x,y+s*.3);g.closePath()}
+
+function drawItem(it){g.save();g.translate(it.x,it.y);g.rotate(it.rot+Math.sin(it.w)*.15);
+  if(it.type==='cloud'){
+    g.fillStyle='rgba(176,160,178,.9)';g.beginPath();
+    const s=it.sz;g.arc(-s*.32,s*.08,s*.28,0,7);g.arc(0,-s*.1,s*.36,0,7);g.arc(s*.34,s*.08,s*.26,0,7);
+    g.rect(-s*.6,s*.05,s*1.2,s*.3);g.fill();
+    g.fillStyle='#fff';g.font=`600 ${s*.32}px Montserrat,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('км',0,s*.12);
+  }else{
+    const s=it.sz, gold=it.type==='gold';
+    g.shadowColor=gold?'rgba(255,190,90,.8)':'rgba(220,90,120,.35)';g.shadowBlur=gold?18:8;
+    const gr=g.createLinearGradient(0,-s*.5,0,s*.5);
+    if(gold){gr.addColorStop(0,'#ffe29a');gr.addColorStop(1,'#f0a640')}else{gr.addColorStop(0,'#f9a8bb');gr.addColorStop(1,'#d9587a')}
+    g.fillStyle=gr;heartPath(0,-s*.5,s);g.fill();g.shadowBlur=0;
+    g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.ellipse(-s*.2,-s*.22,s*.1,s*.06,-.6,0,7);g.fill();
+  }
+  g.restore()}
+
+function drawPlayer(){const r=R(),x=P.x,y=H-r-Math.max(40,H*.07);P.y=y;
+  const sq=1+P.squish*.12;
+  g.save();g.translate(x,y);g.scale(sq,1/sq);
+  g.shadowColor='rgba(201,96,122,.35)';g.shadowBlur=22;
+  g.fillStyle='#fff';g.beginPath();g.arc(0,0,r+5,0,7);g.fill();g.shadowBlur=0;
+  g.strokeStyle='#e88fa3';g.lineWidth=3;g.beginPath();g.arc(0,0,r+7,0,7);g.stroke();
+  g.save();g.beginPath();g.arc(0,0,r,0,7);g.clip();
+  if(img.complete&&img.naturalWidth){const iw=img.naturalWidth,ih=img.naturalHeight,s=Math.min(iw,ih*0.8);
+    g.drawImage(img,(iw-s)/2,ih*0.05,s,s,-r,-r,r*2,r*2)}else{g.fillStyle='#fbd0d8';g.fillRect(-r,-r,r*2,r*2)}
+  g.restore();g.restore()}
+
+function frame(now){const dt=Math.min(2,(now-last)/16.67||1);last=now;
+  g.clearRect(0,0,W,H);
+  if(shake>0){g.save();g.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.85;if(shake<.3)shake=0}
+
+  if(state==='play'){
+    spawnT-=dt;if(spawnT<=0){spawn();spawnT=Math.max(16,42-score*0.8)+Math.random()*14}
+    P.x+=(P.tx-P.x)*Math.min(1,.28*dt);P.squish*=.85;
+  }
+  for(let i=items.length-1;i>=0;i--){const it=items[i];
+    it.y+=it.vy*dt;it.w+=.05*dt;it.x+=Math.sin(it.w)*it.wa*.4*dt;
+    if(state==='play'){const r=R(),dx=it.x-P.x,dy=it.y-P.y;
+      if(dx*dx+dy*dy<(r+it.sz*.45)**2){items.splice(i,1);
+        if(it.type==='cloud'){score=Math.max(0,score-2);shake=10;burst(it.x,it.y,'#b0a0b2',14);floatText(it.x,it.y-20,'−2 расстояние','#9b8a9e');
+          if(navigator.vibrate)navigator.vibrate([40,40,40])}
+        else{const add=it.type==='gold'?3:1;score+=add;P.squish=1;burst(it.x,it.y,it.type==='gold'?'#f6c35c':'#ef8aa3',it.type==='gold'?22:12);
+          floatText(it.x,it.y-24,it.type==='gold'?'+3 золотое!':phrases[Math.random()*phrases.length|0],it.type==='gold'?'#e39a2c':'#c9607a');
+          if(navigator.vibrate)navigator.vibrate(15)}
+        updHud();if(score>=GOAL)win();continue}}
+    if(it.y>H+50){items.splice(i,1);continue}
+    drawItem(it)}
+  if(state==='play')drawPlayer();
+  for(let i=fx.length-1;i>=0;i--){const p=fx[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.12*dt;p.life-=.025*dt;
+    if(p.life<=0){fx.splice(i,1);continue}g.globalAlpha=p.life;g.fillStyle=p.col;heartPath(p.x,p.y-p.sz/2,p.sz*1.6);g.fill()}
+  g.globalAlpha=1;
+  for(let i=floats.length-1;i>=0;i--){const f=floats[i];f.y-=.9*dt;f.life-=.018*dt;
+    if(f.life<=0){floats.splice(i,1);continue}g.globalAlpha=f.life;g.fillStyle=f.col;g.font='700 24px Caveat,cursive';
+    g.textAlign='center';g.fillText(f.txt,f.x,f.y)}
+  g.globalAlpha=1;
+  if(shake>0)g.restore();
+  requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+
+// фоновые сердечки на меню/финале
+setInterval(()=>{if(state!=='play'&&items.length<14){spawn();const it=items[items.length-1];if(it.type==='cloud')it.type='heart';it.vy*=.5}},500);
+
+function win(){state='end';document.getElementById('hud').classList.remove('on');
+  for(let k=0;k<5;k++)setTimeout(()=>burst(W*(.2+Math.random()*.6),H*(.2+Math.random()*.5),['#ef8aa3','#f6c35c','#f9a8bb'][k%3],30),k*220);
+  setTimeout(()=>document.getElementById('end').classList.add('on'),900)}
+function play(){document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('on'));
+  document.getElementById('hud').classList.add('on');items=[];reset();state='play'}
+document.getElementById('play').onclick=play;
+document.getElementById('again').onclick=play;
+</script>
+</body>
+</html>

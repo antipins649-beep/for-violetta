@@ -89,6 +89,8 @@ body{
 #miss-msg{font-family:'Caveat',cursive;font-size:26px;color:var(--rose-d);height:34px;margin-top:16px;
   opacity:0;transition:opacity .6s}
 #miss-msg.show{opacity:1}
+.game-link{font-family:'Montserrat',sans-serif;font-size:14px;color:var(--rose-d);margin-top:14px;
+  padding:10px 20px;border:1.5px solid rgba(201,96,122,.45);border-radius:999px;text-decoration:none;background:rgba(255,255,255,.6)}
 .heart-pop{position:fixed;pointer-events:none;z-index:5;font-size:22px;will-change:transform,opacity}
 </style>
 </head>
@@ -135,6 +137,7 @@ body{
   <div class="love">Я люблю тебя, <i>Виолетта</i></div>
   <button class="btn" id="miss">нажми, если скучаешь</button>
   <div id="miss-msg">я тоже очень скучаю 🤍</div>
+  <a class="game-link" href="game.html">а ещё я сделал тебе игру 🎮</a>
 </section>
 
 <script>
