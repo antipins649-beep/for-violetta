@@ -146,8 +146,50 @@ function drawPlayer(){const r=R(),x=P.x,y=H-r-Math.max(40,H*.07);P.y=y;
     g.drawImage(img,(iw-s)/2,ih*0.05,s,s,-r,-r,r*2,r*2)}else{g.fillStyle='#fbd0d8';g.fillRect(-r,-r,r*2,r*2)}
   g.restore();g.restore()}
 
+// ===== фон =====
+const bokeh=[],sparks=[],clouds=[];let hills=null,cloudSpr=[];
+function mkCloudSpr(w){const c=document.createElement('canvas'),h=w*.5;c.width=w*dpr;c.height=h*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);
+  x.filter='blur(2px)';const gr=x.createLinearGradient(0,0,0,h);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(1,'rgba(255,236,240,.85)');
+  x.fillStyle=gr;x.beginPath();const b=h*.78;
+  x.arc(w*.25,b-h*.18,h*.22,0,7);x.arc(w*.45,b-h*.32,h*.3,0,7);x.arc(w*.68,b-h*.22,h*.24,0,7);x.arc(w*.82,b-h*.1,h*.15,0,7);
+  x.rect(w*.12,b-h*.18,w*.76,h*.18);x.fill();return c}
+function mkHills(){const c=document.createElement('canvas');c.width=W*dpr;c.height=H*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);
+  const layers=[{base:H*.80,amp:18,f:1.3,ph:.5,c1:'#fbd3dc',c2:'#f6c1ce'},{base:H*.86,amp:14,f:2.1,ph:2,c1:'#f7c0cd',c2:'#efa9bb'},{base:H*.92,amp:10,f:1.7,ph:4,c1:'#f2adbf',c2:'#e894aa'}];
+  layers.forEach((L,li)=>{const gr=x.createLinearGradient(0,L.base-L.amp,0,H);gr.addColorStop(0,L.c1);gr.addColorStop(1,L.c2);x.fillStyle=gr;
+    x.beginPath();x.moveTo(0,H);for(let i=0;i<=W;i+=6)x.lineTo(i,L.base+Math.sin(i/W*Math.PI*L.f+L.ph)*L.amp);x.lineTo(W,H);x.fill();
+    // цветочки на холмах
+    const n=Math.round(W/(li===2?22:34));for(let k=0;k<n;k++){const fx=Math.random()*W,fy=L.base+Math.sin(fx/W*Math.PI*L.f+L.ph)*L.amp+6+Math.random()*(H-L.base)*.5;
+      const s=li===2?3.2:2.3;x.fillStyle=['#fff','#ffe3ea','#fff4c9'][k%3];
+      for(let p=0;p<5;p++){const a=p/5*6.28;x.beginPath();x.arc(fx+Math.cos(a)*s,fy+Math.sin(a)*s,s*.8,0,7);x.fill()}
+      x.fillStyle='#f6c35c';x.beginPath();x.arc(fx,fy,s*.6,0,7);x.fill()}});
+  return c}
+function initBg(){bokeh.length=sparks.length=clouds.length=0;
+  for(let i=0;i<16;i++)bokeh.push({x:Math.random()*W,y:Math.random()*H,r:18+Math.random()*60,vy:.12+Math.random()*.25,ph:Math.random()*6.28,
+    c:Math.random()<.5?'255,182,200':'255,255,255',a:.18+Math.random()*.25});
+  for(let i=0;i<34;i++)sparks.push({x:Math.random()*W,y:Math.random()*H*.75,s:2+Math.random()*4,ph:Math.random()*6.28,sp:.03+Math.random()*.05});
+  cloudSpr=[mkCloudSpr(150),mkCloudSpr(200),mkCloudSpr(120)];
+  for(let i=0;i<5;i++)clouds.push({spr:cloudSpr[i%3],x:Math.random()*W,y:H*(.1+i*.13)+Math.random()*30,v:.15+Math.random()*.25,a:.55+Math.random()*.35});
+  hills=mkHills()}
+initBg();addEventListener('resize',initBg);
+function drawBg(dt,now){
+  // мягкое свечение-«солнце»
+  const sg=g.createRadialGradient(W*.75,H*.12,0,W*.75,H*.12,W*.6);sg.addColorStop(0,'rgba(255,240,220,.85)');sg.addColorStop(1,'rgba(255,240,220,0)');
+  g.fillStyle=sg;g.fillRect(0,0,W,H);
+  for(const b of bokeh){b.y-=b.vy*dt;b.ph+=.01*dt;if(b.y<-b.r){b.y=H+b.r;b.x=Math.random()*W}
+    const x=b.x+Math.sin(b.ph)*14,gr=g.createRadialGradient(x,b.y,0,x,b.y,b.r);
+    gr.addColorStop(0,`rgba(${b.c},${b.a})`);gr.addColorStop(.7,`rgba(${b.c},${b.a*.5})`);gr.addColorStop(1,`rgba(${b.c},0)`);
+    g.fillStyle=gr;g.beginPath();g.arc(x,b.y,b.r,0,7);g.fill()}
+  for(const c of clouds){c.x+=c.v*dt;const w=c.spr.width/dpr;if(c.x>W+10)c.x=-w;g.globalAlpha=c.a;g.drawImage(c.spr,c.x,c.y,w,c.spr.height/dpr)}
+  g.globalAlpha=1;
+  for(const s of sparks){s.ph+=s.sp*dt;const a=Math.max(0,Math.sin(s.ph));if(a<.05)continue;
+    g.globalAlpha=a*.9;g.fillStyle='#fff';const z=s.s*(.6+a*.6);g.beginPath();
+    g.moveTo(s.x,s.y-z*2);g.quadraticCurveTo(s.x,s.y,s.x+z*2,s.y);g.quadraticCurveTo(s.x,s.y,s.x,s.y+z*2);
+    g.quadraticCurveTo(s.x,s.y,s.x-z*2,s.y);g.quadraticCurveTo(s.x,s.y,s.x,s.y-z*2);g.fill()}
+  g.globalAlpha=1;
+  if(hills)g.drawImage(hills,0,0,W,H)}
+
 function frame(now){const dt=Math.min(2,(now-last)/16.67||1);last=now;
-  g.clearRect(0,0,W,H);
+  g.clearRect(0,0,W,H);drawBg(dt,now);
   if(shake>0){g.save();g.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.85;if(shake<.3)shake=0}
 
   if(state==='play'){
